@@ -512,7 +512,7 @@ class TestMiscellaneousFunctions(unittest.TestCase):
     
     @patch('src.utils.save_json_file')
     @patch('src.utils.Path')
-    def test_create_example_abi(self, mock_save, mock_path_class):
+    def test_create_example_abi(self, mock_path_class, mock_save):
         """Test example ABI creation"""
 
         with patch("pathlib.Path.mkdir") as mock_mkdir:
