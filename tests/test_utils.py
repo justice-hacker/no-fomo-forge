@@ -412,7 +412,7 @@ class TestMiscellaneousFunctions(unittest.TestCase):
         for func_name in expected_functions:
             self.assertIn(func_name, function_names)
     
-    @patch('__builtins__.__import__')
+    @patch('builtins.__import__')
     def test_check_dependencies_all_installed(self, mock_import):
         """Test dependency check when all packages are installed."""
         # Mock successful imports
@@ -423,7 +423,7 @@ class TestMiscellaneousFunctions(unittest.TestCase):
         self.assertTrue(all_installed)
         self.assertEqual(missing, [])
     
-    @patch('__builtins__.__import__')
+    @patch('builtins.__import__')
     def test_check_dependencies_some_missing(self, mock_import):
         """Test dependency check when some packages are missing."""
         # Mock import to fail for specific packages
@@ -443,18 +443,23 @@ class TestMiscellaneousFunctions(unittest.TestCase):
     @patch('logging.getLogger')
     @patch('logging.basicConfig')
     @patch('src.utils.Path')
-    def test_setup_logging(self, mock_path, mock_basic_config, mock_get_logger):
+    def test_setup_logging(self, mock_path_class, mock_basic_config, mock_get_logger):
         """Test logging setup."""
         # Mock Path for log directory
         mock_log_dir = Mock()
-        mock_path.return_value = mock_log_dir
+        mock_log_dir.mkdir = Mock()
+        mock_log_dir.__truediv__ = Mock(return_value="logs/nft_minter_test.log")
+        mock_path_class.return_value = mock_log_dir
         
         # Mock logger
         mock_logger = Mock()
         mock_get_logger.return_value = mock_logger
         
-        # Setup logging
-        logger = setup_logging(logging.DEBUG)
+        # Also need to mock the logging module methods that get called
+        with patch('logging.FileHandler'), \
+             patch('logging.StreamHandler'):
+            # Setup logging
+            logger = setup_logging(logging.DEBUG)
         
         # Verify log directory was created
         mock_log_dir.mkdir.assert_called_once_with(exist_ok=True)
