@@ -510,9 +510,9 @@ class TestMiscellaneousFunctions(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir)
     
-    @patch('src.utils.Path')
     @patch('src.utils.save_json_file')
-    def test_create_example_abi(self, mock_save):
+    @patch('src.utils.Path')
+    def test_create_example_abi(self, mock_save, mock_path_class):
         """Test example ABI creation"""
 
         with patch("pathlib.Path.mkdir") as mock_mkdir:
