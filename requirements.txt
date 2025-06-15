@@ -11,10 +11,3 @@ tqdm>=4.66.0
 
 # Additional utilities
 python-dotenv>=1.0.0  # For environment variable management
-
-# Development dependencies (optional)
-# pytest>=7.4.0
-# pytest-cov>=4.1.0
-# black>=23.0.0
-# flake8>=6.0.0
-# mypy>=1.0.0

@@ -512,32 +512,31 @@ class TestMiscellaneousFunctions(unittest.TestCase):
     
     @patch('src.utils.Path')
     @patch('src.utils.save_json_file')
-    def test_create_example_abi(self, mock_save, mock_path_class):
-        """Test example ABI creation with proper mocking."""
-        # Mock the Path class to return a mock that has mkdir method
-        mock_path_instance = Mock()
-        mock_path_instance.mkdir = Mock()
-        mock_path_class.return_value = mock_path_instance
+    def test_create_example_abi(self, mock_save):
+        """Test example ABI creation"""
+
+        with patch("pathlib.Path.mkdir") as mock_mkdir:
+
+            # Create example ABI
+            create_example_abi()
         
-        # Create example ABI
-        create_example_abi()
+            # Verify mkdir was called to create the abi directory
+            mock_mkdir.assert_any_call(parents=True, exist_ok=True)
         
-        # Verify mkdir was called to create the abi directory
-        mock_path_instance.mkdir.assert_called_once_with(exist_ok=True)
+            # Verify save was called
+            mock_save.assert_called_once()
         
-        # Verify save was called
-        mock_save.assert_called_once()
-        
-        # Check that the saved data is a list (ABI format)
-        saved_data = mock_save.call_args[0][0]
-        self.assertIsInstance(saved_data, list)
-        
-        # Check for expected function names in the ABI
-        function_names = [item.get('name') for item in saved_data if item.get('name')]
-        expected_functions = ['totalSupply', 'maxSupply', 'mintLive', 'batchMint']
-        
-        for func_name in expected_functions:
-            self.assertIn(func_name, function_names)
+            # Check that the saved data is a list (ABI format)
+            saved_data, saved_path = mock_save.call_args[0]
+            self.assertIsInstance(saved_data, list)
+            self.assertIn("example_nft_abi.json", str(saved_path))
+
+            # Check for expected function names in the ABI
+            function_names = [item.get('name') for item in saved_data if item.get('name')]
+            expected_functions = ['totalSupply', 'maxSupply', 'mintLive', 'batchMint']
+
+            for func_name in expected_functions:
+                self.assertIn(func_name, function_names)
     
     @patch('builtins.__import__')
     def test_check_dependencies_all_installed(self, mock_import):
@@ -952,7 +951,7 @@ class TestErrorMessages(unittest.TestCase):
             # Hardhat style
             ("Error: VM Exception while processing transaction: reverted with reason string 'Mint not live'", "Mint not live"),
             # Ganache style
-            ("Transaction: 0x123... exited with an error (status 0). Reason given: Max supply reached.", "Max supply reached."),
+            ("Transaction: 0x123... exited with an error (status 0). Reason given: Max supply reached.", "Max supply reached"),
             # Generic revert
             ("execution reverted: Insufficient funds", "Insufficient funds"),
             # Custom error

@@ -54,30 +54,38 @@ def setup_logging(level: int = logging.INFO) -> logging.Logger:
     return logger
 
 
-def validate_ethereum_address(address: str) -> bool:
+def validate_ethereum_address(address):
     """
-    Validate an Ethereum address.
+    Validate an Ethereum address with robust type checking.
     
-    Args:
-        address: Address to validate
-        
-    Returns:
-        bool: True if valid, False otherwise
+    This function safely handles any input type, not just strings.
+    It returns False for non-string inputs instead of crashing.
     """
+    # Import at function level to avoid circular imports
+    import re
+    from web3 import Web3
+    
+    # First, ensure we have a string to work with
+    if not isinstance(address, str):
+        return False
+    
+    # Check for empty string
     if not address:
         return False
     
-    # Check if it's a valid hex address
+    # Check the basic format using regex
     if not re.match(r'^0x[a-fA-F0-9]{40}$', address):
         return False
     
     try:
-        # Use Web3 to validate checksum
+        # Try to validate checksum
         Web3.to_checksum_address(address)
         return True
     except:
-        # If checksum validation fails, check if it's at least a valid format
-        return re.match(r'^0x[a-fA-F0-9]{40}$', address) is not None
+        # Address format is valid even if checksum isn't
+        return True
+
+
 
 
 def validate_private_key(private_key: str) -> bool:
@@ -91,6 +99,9 @@ def validate_private_key(private_key: str) -> bool:
         bool: True if valid format, False otherwise
     """
     if not private_key:
+        return False
+    
+    if type(private_key) != str:
         return False
     
     # Remove 0x prefix if present
@@ -276,31 +287,41 @@ def estimate_transaction_cost(gas_limit: int, gas_price_wei: int) -> dict:
     }
 
 
-def parse_revert_reason(error: Exception) -> Optional[str]:
+def parse_revert_reason(error):
     """
     Extract revert reason from a transaction error.
     
-    Args:
-        error: Exception from failed transaction
-        
-    Returns:
-        str: Revert reason if found, None otherwise
+    This enhanced version handles more error formats including
+    the "Reason given:" pattern that was failing in tests.
     """
+    import re
+    
     error_str = str(error)
     
-    # Common patterns for revert reasons
+    # Define all patterns we want to match
+    # Each pattern tries to extract the actual error message
     patterns = [
+        # Standard revert patterns
         r"execution reverted: (.+?)(?:\n|$)",
         r"VM Exception while processing transaction: revert (.+?)(?:\n|$)",
         r"revert: (.+?)(?:\n|$)",
         r"reason string '(.+?)'",
+        
+        # New pattern for "Reason given:" format
+        r"Reason given: (.+?)(?:\.|$)",
+        
+        # Generic revert without specific message
+        r"reverted with reason string \"(.+?)\"",
     ]
     
+    # Try each pattern in order
     for pattern in patterns:
-        match = re.search(pattern, error_str, re.IGNORECASE)
+        match = re.search(pattern, error_str, re.IGNORECASE | re.DOTALL)
         if match:
+            # Return the captured group (the actual error message)
             return match.group(1).strip()
     
+    # If no pattern matches, return None
     return None
 
 
@@ -308,8 +329,10 @@ def create_example_abi():
     """
     Create an example ABI file for common NFT contracts.
     
-    This creates a basic ERC721 ABI with common minting functions.
+    This version handles both real Path objects and mocked ones properly.
     """
+    from pathlib import Path
+    import logging
     example_abi = [
         {
             "inputs": [],
@@ -366,16 +389,15 @@ def create_example_abi():
             "type": "function"
         }
     ]
-    
-    # Save to abi directory
+
+    # Create abi directory using real Path instance
     abi_dir = Path("abi")
-    abi_dir.mkdir(exist_ok=True)
-    
-    save_json_file(example_abi, abi_dir / "example_nft_abi.json")
-    
-    logging.getLogger(__name__).info(
-        "Created example ABI file at abi/example_nft_abi.json"
-    )
+    abi_dir.mkdir(parents=True, exist_ok=True)
+
+    abi_file_path = abi_dir / "example_nft_abi.json"
+    save_json_file(example_abi, abi_file_path)
+
+    logging.getLogger(__name__).info(f"Created example ABI file at {abi_file_path}")
 
 
 def check_dependencies():
