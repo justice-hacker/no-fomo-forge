@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  nft-minter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Container name
+    container_name: no-fomo-forge
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Environment variables (can be overridden with .env file)
+    environment:
+      - WALLET_PRIVATE_KEY=${WALLET_PRIVATE_KEY}
+      - WALLET_ADDRESS=${WALLET_ADDRESS}
+      - NETWORK_NAME=${NETWORK_NAME:-BERACHAIN}
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - EXPLORER_API_KEY=${EXPLORER_API_KEY}
+      - MINTING_GROUP_ID=${MINTING_GROUP_ID:-0}
+      - MINTING_AMOUNT=${MINTING_AMOUNT:-1}
+      - MINTING_TO_ADDRESS=${MINTING_TO_ADDRESS:-DEFAULT}
+
+    # Volumes for persistent data
+    volumes:
+      # Configuration directory
+      - ./config:/app/config
+
+      # Logs directory
+      - ./logs:/app/logs
+
+      # ABI files directory
+      - ./abi:/app/abi
+
+    # Command (can be overridden)
+    command: python main.py -c /app/config/config.json
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: Run in monitoring mode
+  nft-minter-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: nft-minter-monitor
+
+    restart: unless-stopped
+
+    environment:
+      - WALLET_PRIVATE_KEY=${WALLET_PRIVATE_KEY}
+      - WALLET_ADDRESS=${WALLET_ADDRESS}
+      - NETWORK_NAME=${NETWORK_NAME:-BERACHAIN}
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - EXPLORER_API_KEY=${EXPLORER_API_KEY}
+
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./abi:/app/abi
+
+    # Run in dry-run mode for monitoring
+    command: python main.py -c /app/config/config.json --dry-run -v
+
+    profiles:
+      - monitor

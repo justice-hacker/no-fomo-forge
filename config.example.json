@@ -1,0 +1,21 @@
+{
+  "wallet": {
+    "private_key": "YOUR_PRIVATE_KEY_HERE",
+    "address": "YOUR_WALLET_ADDRESS_HERE"
+  },
+  "network": {
+    "name": "BERACHAIN",
+    "custom_rpc": null
+  },
+  "contract": {
+    "address": "CONTRACT_ADDRESS_HERE",
+    "abi_path": "abi/contract_abi.json",
+    "explorer_api_key": "YOUR_API_KEY_HERE"
+  },
+  "minting": {
+    "group_id": 0,
+    "amount": 1,
+    "to_address": "DEFAULT",
+    "auto_max": false
+  }
+}

@@ -1,0 +1,20 @@
+# Core Web3 dependencies
+web3>=6.11.0
+eth-account>=0.10.0
+eth-utils>=2.3.0
+
+# HTTP requests
+requests>=2.31.0
+
+# Progress bars
+tqdm>=4.66.0
+
+# Additional utilities
+python-dotenv>=1.0.0  # For environment variable management
+
+# Development dependencies (optional)
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
+# black>=23.0.0
+# flake8>=6.0.0
+# mypy>=1.0.0
