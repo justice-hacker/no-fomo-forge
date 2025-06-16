@@ -317,7 +317,7 @@ no-fomo-forge/
 ├── config.example.json   # Example configuration
 ├── .env.example         # Example environment variables
 ├── .gitignore           # Git ignore rules
-├── LICENSE              # MIT License
+├── LICENSE              # AGPL-3.0 license
 └── CONTRIBUTING.md      # Contribution guidelines
 ```
 
@@ -498,7 +498,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## License
 
-This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
+This project is licensed under the AGPL-3.0 license - see [LICENSE](LICENSE) for details.
 
 ## Support
 
