@@ -6,8 +6,8 @@ networks and provides batch minting capabilities with real-time monitoring.
 """
 
 __version__ = "1.0.0"
-__author__ = "NFT Minter Team"
-__license__ = "MIT"
+__author__ = "Justice"
+__license__ = "AGPL-3.0 license"
 
 from .minter import NFTMinter
 from .config import ConfigManager
